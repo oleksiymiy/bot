@@ -1,0 +1,6 @@
+logs/server.log
+node_modules
+ecosystem.config.js
+.vscode/settings.json
+.vscode/launch.json
+.env
