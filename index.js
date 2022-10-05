@@ -5,7 +5,6 @@ const { sqlRequest } = require("./db_config/postgres");
 const winston = require("./logger");
 
 const start = async () => {
-
     try {
         await sqlRequest('SELECT 1+1')
         app.listen(PORT, () => {
@@ -18,4 +17,3 @@ const start = async () => {
 }
 
 start()
-
