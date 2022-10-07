@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser')
 const cors = require('cors')
 const helmet = require('helmet')
 const winston = require('./logger/index')
-const APiError = require('./Error/index')
+const ApiError = require('./Error/index')
 const { createClient } = require("redis")
 const session = require('express-session')
 const RedisStore = require("connect-redis")(session)
@@ -27,10 +27,12 @@ app.use(session({
 app.use(cookieParser())
 app.use(cors())
 app.use('/auth', authRouter)
-
+app.use(async (req,res,next)=>{
+    next(new Error('Not Found'))
+    })
 app.use((err, req, res, next) => {
     winston.error(`message -> '${err.message}'  code -> '${err.code}' stack -> ' ${err.stack} '`)
-    if (err instanceof APiError) {
+    if (err instanceof ApiError) {
         return res.status(err.status).json({ message: err.message, errors: err.errors })
     }
     return res.status(500).json({ message: err.message })

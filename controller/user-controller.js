@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator')
-const userService = require('../service/userService')
+const UserService = require('../service/userService')
 const DatabaseUserService = require('../service/databaseService')
 const ApiError = require('../Error')
 
@@ -12,7 +12,7 @@ class authController {
                 return next(ApiError.BadRequest('Помилка при валідації введених даних', errors.array()))
             }
             const { email, password, role } = req.body
-            await userService.registration(email, password, role, '192.168.33.126');
+            await UserService.registration(email, password, role, '192.168.33.126');
             req.session.user = {
                 email,
                 roles: role.split(',')
@@ -26,7 +26,7 @@ class authController {
     async login(req, res, next) {
         try {
             const { email, password } = req.body
-            const userData = await userService.login(email, password)
+            const userData = await UserService.login(email, password)
             req.session.user = {
                 email: userData.email,
                 createdAt: Date.now()
@@ -56,11 +56,13 @@ class authController {
 
     async getUsers(req, res, next) {
         try {
-            const getUsers = await DatabaseUserService.findAllUser()
+            const page =5;
+            const size =10;
+            const getUsers = await DatabaseUserService.findAllUser(page,size)
             if (getUsers.length === 0) {
                 throw ApiError.BadRequest('Таблиця з користувачами порожня.')
             }
-            return res.status(200).json({ getUsers })
+            return res.status(200).json(getUsers)
 
         } catch (e) {
             next(e)

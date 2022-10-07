@@ -1,4 +1,3 @@
-const winston = require('../logger')
 const knex = require("knex")({
   client: "pg",
   connection: {

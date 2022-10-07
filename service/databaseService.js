@@ -38,11 +38,33 @@ class DatabaseUserService {
         return await knex.withSchema('backend').select('*').from('users').where(filter)
     }
 
-    async findAllUser() {
+    async findAllUser(page, size) {
+        const { limit, offset } = getPagination(page, size)
+        return await knex.raw(`select json_agg(rw) as data,
+        max(cnt) as count
+        from (
+        select to_jsonb(telegram.account.*) as rw,
+        count(*) over () as cnt from telegram.account
+        order by acc_id asc
+         limit ${limit} offset ${offset})q`).then((result) => {
+            return {
+                total: result.rows[0].count,
+                data: result.rows[0].data,
+                totalPages: Math.ceil(result.rows[0].count / limit),
+                currentPage: page ? +page : 0
+            }
+        })
         //доробити pagination
-        return await knex.withSchema('backend').select('*').from('users')
+        //return await knex.withSchema('backend').select('*').from('users')
     }
 
 }
+
+const getPagination = (page, size) => {
+    const limit = size ? size : 10;
+    const offset = page ? page * limit : 0;
+
+    return { limit, offset };
+};
 
 module.exports = new DatabaseUserService()
